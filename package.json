@@ -1,0 +1,47 @@
+{
+  "name": "btu-gecerken-pdf-reader",
+  "version": "1.0.0",
+  "description": "BTÜ Geçerken PDF Okuyucusu ve Derleyicisi",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^28.2.0",
+    "electron-builder": "^24.9.1"
+  },
+  "build": {
+    "appId": "com.btugecerken.pdfreader",
+    "productName": "BTU Gecerken PDF Reader",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!dist/*"
+    ],
+    "fileAssociations": [
+      {
+        "ext": "pdf",
+        "name": "PDF Belgesi",
+        "role": "Viewer",
+        "icon": "icon.ico"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "ico.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "BTÜ Geçerken PDF Okuyucusu"
+    }
+  }
+}

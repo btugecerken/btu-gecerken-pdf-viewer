@@ -1,0 +1,151 @@
+:root {
+  --primary-emerald: #009B77;
+  --deep-navy: #002366;
+  --cream-bg: #faf8f5;
+  --turkuaz: #40E0D0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  user-select: none;
+  font-family: 'Syne', sans-serif;
+  overflow: hidden;
+}
+
+.splash-card {
+  width: 580px;
+  height: 340px;
+  background: linear-gradient(135deg, #061510 0%, #00173d 50%, #002366 100%);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75);
+  border: 1.5px solid rgba(0, 155, 119, 0.35);
+}
+
+/* Üst kavisli geometrik görsel katman */
+.splash-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 260px;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(0, 155, 119, 0.25), rgba(64, 224, 208, 0.15));
+  clip-path: polygon(40% 0, 100% 0, 100% 100%, 0% 100%);
+  pointer-events: none;
+}
+
+.splash-glow {
+  position: absolute;
+  bottom: -40px;
+  left: -40px;
+  width: 240px;
+  height: 240px;
+  background: var(--primary-emerald);
+  opacity: 0.2;
+  filter: blur(55px);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.splash-content {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 42px 46px;
+  position: relative;
+  z-index: 2;
+}
+
+.splash-brand {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.logo-box {
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(64, 224, 208, 0.3);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(6px);
+}
+
+.splash-logo {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.brand-text h2 {
+  color: var(--cream-bg);
+  font-size: 27px;
+  font-weight: 800;
+  letter-spacing: 0.6px;
+  line-height: 1.15;
+}
+
+.brand-text span {
+  color: var(--turkuaz);
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-top: 6px;
+  display: block;
+}
+
+.splash-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.loader-line {
+  width: 160px;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.loader-line::after {
+  content: '';
+  position: absolute;
+  left: -50%;
+  height: 100%;
+  width: 50%;
+  background: linear-gradient(90deg, var(--primary-emerald), var(--turkuaz));
+  border-radius: 4px;
+  animation: loadingSlide 1.3s infinite ease-in-out;
+}
+
+@keyframes loadingSlide {
+  0% { left: -50%; }
+  100% { left: 100%; }
+}
+
+.version {
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}

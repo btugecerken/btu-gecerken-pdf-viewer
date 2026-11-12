@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BTÜ Geçerken | PDF Derleyicisi & Kütüphane</title>
+
+  <link rel="icon" href="https://btugecerken.com/logogecerken-Photoroom%20(1).ico">
+
+  <!-- Fontlar & İkonlar -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Noto+Serif+TR:wght@400;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <!-- Arka planda kapak görseli (thumbnail) üretmek için PDF.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+
+  <link rel="stylesheet" href="library.css">
+</head>
+<body>
+
+  <div class="lib-app-wrapper">
+    <!-- SOL KENAR ÇUBUĞU (SIDEBAR) -->
+    <aside class="lib-sidebar">
+      <div class="sidebar-header">
+        <div class="brand">
+          <img src="https://btugecerken.com/logogecerken-Photoroom%20(1).ico" alt="Logo">
+          <div class="brand-text">
+            <h3>BTÜ Geçerken</h3>
+            <span>PDF Derleyicisi</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-view="all" id="navAllDocs">
+          <div class="nav-icon"><i class="fa-regular fa-file-lines"></i></div>
+          <span class="nav-label">Tüm Belgeler</span>
+          <span class="badge" id="countAll">0</span>
+        </button>
+
+        <button class="nav-item" data-view="trash" id="navTrash">
+          <div class="nav-icon"><i class="fa-regular fa-trash-can"></i></div>
+          <span class="nav-label">Çöp Kutusu</span>
+          <span class="badge" id="countTrash">0</span>
+        </button>
+
+        <div class="nav-divider"></div>
+
+        <div class="folders-header">
+          <span class="folders-title"><i class="fa-regular fa-folder-open"></i> Klasörler</span>
+          <button id="btnNewFolderModal" class="btn-icon-tiny" title="Yeni Klasör Ekle">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+        </div>
+
+        <div class="folder-list" id="folderList">
+          <!-- Klasörler JS tarafından dinamik listelenir -->
+        </div>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="storage-info">
+          <i class="fa-solid fa-shield-halved"></i>
+          <span>Yerel Depolama Aktif</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- SAĞ ANA İÇERİK ALANI -->
+    <main class="lib-main-content">
+      <!-- Üst Araç Çubuğu -->
+      <header class="lib-toolbar">
+        <div class="toolbar-left">
+          <h2 class="view-title" id="currentViewTitle">Tüm Belgeler</h2>
+        </div>
+
+        <div class="toolbar-center">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="libSearchInput" placeholder="Belgelerde veya klasörlerde ara..." autocomplete="off">
+          </div>
+        </div>
+
+        <div class="toolbar-right">
+          <button id="btnImportPdf" class="btn-action primary">
+            <i class="fa-solid fa-file-import"></i>
+            <span>PDF'yi İçe Aktar</span>
+          </button>
+          <button id="btnNewBlankPdf" class="btn-action secondary">
+            <i class="fa-solid fa-file-circle-plus"></i>
+            <span>Yeni Not / PDF</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Belge Kartları Izgarası (Grid View) -->
+      <section class="docs-grid-container">
+        <div class="docs-grid" id="docsGrid">
+          <!-- Kartlar buraya JS ile yüklenecek -->
+        </div>
+
+        <!-- Boş Liste Görünümü -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <div class="empty-icon"><i class="fa-regular fa-folder-open"></i></div>
+          <h3>Burada henüz belge yok</h3>
+          <p>Yukarıdaki "PDF'yi İçe Aktar" butonuna tıklayarak ilk belgenizi ekleyin.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- YENİ KLASÖR OLUŞTURMA MODALI -->
+  <div class="modal-overlay" id="folderModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h4>Yeni Klasör Oluştur</h4>
+        <button id="btnCloseModal" class="btn-icon-tiny"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <label for="folderNameInput">Klasör Adı:</label>
+        <input type="text" id="folderNameInput" placeholder="Örn: Ders Notları, Araştırma..." maxlength="30">
+        
+        <label>Renk Seçimi:</label>
+        <div class="folder-colors" id="folderColorPicker">
+          <span class="color-circle active" data-color="#009B77" style="background:#009B77;"></span>
+          <span class="color-circle" data-color="#002366" style="background:#002366;"></span>
+          <span class="color-circle" data-color="#40E0D0" style="background:#40E0D0;"></span>
+          <span class="color-circle" data-color="#e11d48" style="background:#e11d48;"></span>
+          <span class="color-circle" data-color="#d97706" style="background:#d97706;"></span>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btnCancelFolder" class="btn-modal-secondary">İptal</button>
+        <button id="btnConfirmFolder" class="btn-modal-primary">Oluştur</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Kapak görseli üretmek için görünmez canvas -->
+  <canvas id="thumbGenCanvas" style="display: none;"></canvas>
+
+  <script src="library.js"></script>
+</body>
+</html>
