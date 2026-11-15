@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>BTÜ Geçerken | PDF Okuyucusu</title>
+  <title>BTÜ Geçerken | PDF Okuyucusu &amp; Not Defteri</title>
 
   <link rel="icon" href="https://btugecerken.com/logogecerken-Photoroom%20(1).ico">
 
@@ -13,7 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Noto+Serif+TR:wght@300;400;600;700&family=Syne:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
-  <!-- PDF.js ve PDF-Lib (Çizimli İndirme İçin) -->
+  <!-- PDF.js ve PDF-Lib -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
   
@@ -28,20 +28,40 @@
         <button id="btnOpenLibrary" class="btn-tool" title="Kütüphaneye Dön">
           <i class="fa-solid fa-arrow-left"></i>
         </button>
-        <span class="doc-title" id="docTitle">PDF Yükleniyor...</span>
+        <button id="btnNewBlankNote" class="btn-new-note" title="Sıfırdan Boş Yeni Not Defteri Oluştur">
+          <i class="fa-solid fa-file-circle-plus"></i>
+          <span>Yeni Not</span>
+        </button>
+        <button id="toggleThumbnailsDesktop" class="btn-tool" title="Sayfaları Düzenle &amp; Sırala">
+          <i class="fa-solid fa-table-cells-large"></i>
+        </button>
+        <input type="text" id="docTitleInput" class="doc-title-input" value="PDF Yükleniyor..." title="Belge Başlığını Düzenle" aria-label="Belge Başlığı">
       </div>
 
       <div class="toolbar-center desktop-nav">
         <button id="prevPageDesktop" class="btn-tool" title="Önceki Sayfa"><i class="fa-solid fa-chevron-left"></i></button>
-        <span class="page-info">Sayfa <span id="pageNum">1</span> / <span id="pageCount">--</span></span>
+        <div class="page-jump-wrap" title="Sayfaya Gitmek İçin Numara Yazıp Enter'a Basın">
+          <span>Sayfa</span>
+          <input type="number" id="pageJumpInputDesktop" class="page-jump-input" min="1" value="1" aria-label="Sayfa Numarası">
+          <span>/ <span id="pageCount">--</span></span>
+        </div>
         <button id="nextPageDesktop" class="btn-tool" title="Sonraki Sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+        <button id="btnAddBlankPageDesktop" class="btn-tool" title="Belge Sonuna Yeni Boş Not Sayfası Ekle">
+          <i class="fa-solid fa-plus"></i>
+        </button>
       </div>
 
       <div class="toolbar-right desktop-actions">
         <button id="zoomOutDesktop" class="btn-tool" title="Uzaklaştır"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+        <span class="zoom-badge" id="zoomLevelBadge">100%</span>
         <button id="zoomInDesktop" class="btn-tool" title="Yakınlaştır"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
-        <button id="penToggleDesktop" class="btn-tool" title="Çizim Araçları"><i class="fa-solid fa-pen"></i></button>
-        <button id="btnDownloadAnnotatedDesktop" class="btn-tool" title="Çizimlerle İndir"><i class="fa-solid fa-file-arrow-down"></i></button>
+
+        <div class="pen-control-group">
+          <button id="penToggleDesktop" class="btn-tool" title="Not &amp; Çizim Araçları"><i class="fa-solid fa-pen"></i></button>
+          <button id="penSettingsToggleDesktop" class="btn-tool btn-tool-sub" title="Kalem &amp; Yazı Ayarları" style="display:none;"><i class="fa-solid fa-sliders"></i></button>
+        </div>
+
+        <button id="btnDownloadAnnotatedDesktop" class="btn-tool" title="Notlu PDF Olarak Kaydet / İndir"><i class="fa-solid fa-file-arrow-down"></i></button>
         <button id="toggleAiDrawerDesktop" class="btn-ai-trigger">
           <i class="fa-solid fa-wand-magic-sparkles"></i>
           <span>Dergilik Asistanı</span>
@@ -51,18 +71,33 @@
 
     <!-- Ana Çalışma Alanı -->
     <main class="pdf-main-viewport">
-      <!-- Açılır Çizim Araç Çubuğu (Floating Pen Toolbar) -->
+      <!-- Sol Sayfa Sıralayıcı & Küçük Resim Çekmecesi -->
+      <aside class="thumbnail-sidebar" id="thumbnailSidebar">
+        <div class="thumb-sidebar-header">
+          <div>
+            <h4>Sayfa Düzenleyici</h4>
+            <span class="thumb-hint">Sürükleyip sıralayın veya silin</span>
+          </div>
+          <button id="closeThumbnailSidebar" class="btn-close-thumb" title="Kapat"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        <div class="thumbnail-grid" id="thumbnailGrid"></div>
+      </aside>
+
+      <!-- Açılır Not & Çizim Araç Çubuğu -->
       <div class="pen-floating-toolbar" id="penToolbar">
         <div class="pen-tool-row">
-          <button class="pen-mode-btn active" data-mode="pen" title="Normal Kalem"><i class="fa-solid fa-pen-nib"></i></button>
+          <button class="pen-mode-btn active" data-mode="pen" title="Kalemle Çiz"><i class="fa-solid fa-pen-nib"></i></button>
           <button class="pen-mode-btn" data-mode="highlighter" title="Fosforlu Kalem"><i class="fa-solid fa-highlighter"></i></button>
+          <button class="pen-mode-btn" data-mode="text" title="Klavyeden Metin Yaz (Sayfaya Tıkla)"><i class="fa-solid fa-font"></i></button>
           <button class="pen-mode-btn" data-mode="eraser" title="Silgi"><i class="fa-solid fa-eraser"></i></button>
           <div class="p-divider"></div>
           <button class="pen-action-btn" id="btnUndoStroke" title="Geri Al"><i class="fa-solid fa-rotate-left"></i></button>
           <button class="pen-action-btn" id="btnClearPageDraw" title="Sayfayı Temizle"><i class="fa-solid fa-trash-can"></i></button>
+          <div class="p-divider"></div>
+          <button class="pen-action-btn" id="btnHidePenPopover" title="Menüyü Gizle (Çalışmaya Devam Et)"><i class="fa-solid fa-chevron-up"></i></button>
+          <button class="pen-action-btn btn-pen-exit" id="btnExitPenMode" title="Not Modundan Çık"><i class="fa-solid fa-xmark"></i></button>
         </div>
         <div class="pen-tool-row sub-row">
-          <!-- Renk Paleti -->
           <div class="pen-colors">
             <span class="color-dot active" data-color="#009B77" style="background:#009B77;"></span>
             <span class="color-dot" data-color="#002366" style="background:#002366;"></span>
@@ -70,7 +105,6 @@
             <span class="color-dot" data-color="#111a16" style="background:#111a16;"></span>
           </div>
           <div class="p-divider"></div>
-          <!-- Kalınlıklar -->
           <div class="pen-sizes">
             <button class="size-btn active" data-size="2">İnce</button>
             <button class="size-btn" data-size="5">Orta</button>
@@ -83,6 +117,15 @@
         <div class="page-viewport-box" id="pageBox">
           <canvas id="pdfCanvas"></canvas>
           <canvas id="drawCanvas"></canvas>
+
+          <!-- Klavyeden Metin Ekleme Katmanı -->
+          <div id="textNoteOverlay" class="text-note-overlay" style="display:none;">
+            <textarea id="textNoteInput" class="text-note-textarea" rows="2" placeholder="Notunuzu yazın... (Enter: Ekle, Shift+Enter: Alt satır)"></textarea>
+            <div class="text-note-actions">
+              <button type="button" id="btnConfirmTextNote" class="text-note-btn confirm" title="Sayfaya Ekle"><i class="fa-solid fa-check"></i> Ekle</button>
+              <button type="button" id="btnCancelTextNote" class="text-note-btn cancel" title="İptal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -124,20 +167,24 @@
       </aside>
     </main>
 
-    <!-- Mobil / Dar Ekran Alt Bar -->
+    <!-- Dar Pencere / Mobil Alt Bar -->
     <nav class="pdf-mobile-bottom-bar">
+      <button id="toggleThumbnailsMobile" class="btn-mob-tool" title="Sayfalar"><i class="fa-solid fa-table-cells-large"></i></button>
       <button id="prevPageMobile" class="btn-mob-tool" title="Önceki Sayfa"><i class="fa-solid fa-chevron-left"></i></button>
 
       <div class="mob-page-indicator">
-        <span id="mobPageNum">1</span> / <span id="mobPageCount">--</span>
+        <input type="number" id="pageJumpInputMobile" class="mob-page-input" min="1" value="1" aria-label="Sayfa Numarası">
+        <span>/ <span id="mobPageCount">--</span></span>
       </div>
 
       <button id="nextPageMobile" class="btn-mob-tool" title="Sonraki Sayfa"><i class="fa-solid fa-chevron-right"></i></button>
+      <button id="btnAddBlankPageMobile" class="btn-mob-tool" title="Yeni Sayfa Ekle"><i class="fa-solid fa-plus"></i></button>
 
       <div class="mob-sep"></div>
 
-      <button id="penToggleMobile" class="btn-mob-tool" title="Kalem"><i class="fa-solid fa-pen"></i></button>
-      <button id="btnDownloadAnnotatedMobile" class="btn-mob-tool" title="İndir"><i class="fa-solid fa-file-arrow-down"></i></button>
+      <button id="penToggleMobile" class="btn-mob-tool" title="Not / Kalem"><i class="fa-solid fa-pen"></i></button>
+      <button id="penSettingsToggleMobile" class="btn-mob-tool" title="Ayarlar" style="display:none;"><i class="fa-solid fa-sliders"></i></button>
+      <button id="btnDownloadAnnotatedMobile" class="btn-mob-tool" title="Kaydet"><i class="fa-solid fa-file-arrow-down"></i></button>
 
       <button id="toggleAiDrawerMobile" class="btn-mob-ai" title="Asistan">
         <i class="fa-solid fa-wand-magic-sparkles"></i>

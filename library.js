@@ -145,7 +145,6 @@ function renderDocCards(docs) {
       </div>
     `;
 
-    // Karta tıklandığında Okuyucu Arayüzünü Aç
     card.addEventListener('click', (e) => {
       if (e.target.closest('.btn-card-menu')) return;
       if (currentView === 'trash') {
@@ -162,7 +161,6 @@ function renderDocCards(docs) {
       });
     });
 
-    // Silme butonu mantığı
     const btnAction = card.querySelector('.btn-card-menu');
     btnAction.addEventListener('click', async (e) => {
       e.stopPropagation();
@@ -191,7 +189,6 @@ document.getElementById('btnImportPdf')?.addEventListener('click', async () => {
   const fileName = selectedPath.split('\\').pop().split('/').pop();
   const folderTarget = (currentView !== 'all' && currentView !== 'trash') ? currentView : 'default';
 
-  // Otomatik thumbnail üret
   const meta = await generateThumbnail(selectedPath);
 
   await window.desktopAPI.saveDocument({
@@ -203,6 +200,25 @@ document.getElementById('btnImportPdf')?.addEventListener('click', async () => {
   });
 
   refreshLibrary();
+});
+
+// --- 5B. YENİ BOŞ NOT / PDF OLUŞTURMA BUTONU ---
+document.getElementById('btnNewBlankPdf')?.addEventListener('click', () => {
+  if (!window.desktopAPI) return;
+
+  const todayStr = new Date().toLocaleDateString('tr-TR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+  const defaultTitle = `Yeni Not - ${todayStr}`;
+  const folderTarget = (currentView !== 'all' && currentView !== 'trash') ? currentView : 'default';
+
+  window.desktopAPI.openReaderView({
+    isNewBlankNote: true,
+    title: defaultTitle,
+    folderId: folderTarget
+  });
 });
 
 // --- 6. NAVİGASYON TIKLAMALARI ---

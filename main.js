@@ -1,6 +1,15 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const path = require('path');
 const store = require('./library-store');
+
+// Uygulama adını ve Windows görev çubuğu kimliğini ayarla
+app.setName('BTÜ Geçerken PDF Viewer');
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.btugecerken.pdfviewer');
+}
+
+// Varsayılan Electron üst menü çubuğunu (File, Edit, View...) kaldır
+Menu.setApplicationMenu(null);
 
 let splashWindow = null;
 let mainWindow = null;
@@ -23,6 +32,7 @@ function getTargetPdfPath() {
 
 function createWindows() {
   const initialPdfPath = getTargetPdfPath();
+  const appIconPath = path.join(__dirname, 'icon.ico');
 
   // 1. Splash Screen Penceresi
   splashWindow = new BrowserWindow({
@@ -34,6 +44,7 @@ function createWindows() {
     resizable: false,
     center: true,
     show: true,
+    icon: appIconPath,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true
@@ -49,7 +60,9 @@ function createWindows() {
     minWidth: 960,
     minHeight: 650,
     show: false,
-    title: "BTÜ Geçerken PDF Okuyucusu",
+    title: "BTÜ Geçerken PDF Viewer",
+    icon: appIconPath,
+    autoHideMenuBar: true,
     backgroundColor: '#12161a',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -66,6 +79,12 @@ function createWindows() {
   } else {
     mainWindow.loadFile('library.html');
   }
+
+  // Sayfa içi <title> etiketi yüklenirken bile pencere başlığını sabit tut
+  mainWindow.on('page-title-updated', (e) => {
+    e.preventDefault();
+    mainWindow.setTitle('BTÜ Geçerken PDF Viewer');
+  });
 
   mainWindow.once('ready-to-show', () => {
     setTimeout(() => {
